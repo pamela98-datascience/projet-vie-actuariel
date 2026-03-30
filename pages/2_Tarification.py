@@ -215,19 +215,27 @@ with tab4:
 
     fig4 = go.Figure()
     fig4.add_trace(go.Scatter(
-        x=[f"{i*100:.1f}%" for i in taux_list],
+        x=list(range(len(taux_list))),
         y=[sensibilite_taux(df_th, age_ref, rente_R, [i])["Prime pure (€)"].values[0]
            for i in taux_list],
         mode="lines+markers", line=dict(color="#3b82f6", width=2.5),
         marker=dict(size=7),
-        hovertemplate="i=%{x}<br>PP=%{y:,.0f}€<extra></extra>"
+        text=[f"{i*100:.1f}%" for i in taux_list],
+        hovertemplate="i=%{text}<br>PP=%{y:,.0f}€<extra></extra>"
     ))
-    fig4.add_vline(x=f"{taux_i*100:.1f}%", line_dash="dot",
+    # Trouver l'index le plus proche du taux actuel
+    idx_taux = min(range(len(taux_list)), key=lambda k: abs(taux_list[k] - taux_i))
+    fig4.add_vline(x=idx_taux, line_dash="dot",
                    line_color="orange",
                    annotation_text=f"Taux actuel {taux_i*100:.1f}%")
     fig4.update_layout(height=360, xaxis_title="Taux technique i",
                        yaxis_title="Prime pure (€)",
                        plot_bgcolor="white", paper_bgcolor="white",
+                       xaxis=dict(
+                           tickvals=list(range(len(taux_list))),
+                           ticktext=[f"{i*100:.1f}%" for i in taux_list],
+                           gridcolor="#f1f5f9"
+                       ),
                        yaxis=dict(gridcolor="#f1f5f9"),
                        margin=dict(t=20, b=40))
     st.plotly_chart(fig4, use_container_width=True)
